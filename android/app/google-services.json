@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "622298064039",
+    "project_id": "pubfix-2aa04",
+    "storage_bucket": "pubfix-2aa04.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:622298064039:android:94eccb1f378e041f666782",
+        "android_client_info": {
+          "package_name": "com.example.pubfix"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB4pIQY8WPmXx-nf1KnN5sT8tAUKmY7Bc8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:622298064039:android:884f2c4c3f8607df666782",
+        "android_client_info": {
+          "package_name": "com.example.pubfix_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB4pIQY8WPmXx-nf1KnN5sT8tAUKmY7Bc8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
