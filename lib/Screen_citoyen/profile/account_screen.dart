@@ -1,9 +1,12 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:pubfix/Screen/welcome_screen.dart';
 import 'package:pubfix/Screen_Aut/Settings/forward_button.dart';
 import 'package:pubfix/Screen_Aut/Settings/setting_item.dart';
 import 'package:pubfix/Screen_Aut/Settings/setting_switch.dart';
+import 'package:pubfix/Screen_citoyen/Notification/Notification.dart';
 import 'package:pubfix/Screen_citoyen/profile/edit_screen.dart';
 import 'package:pubfix/Screen_citoyen/profile/password_reset.dart';
 import 'package:pubfix/global/global_instances.dart';
@@ -21,6 +24,9 @@ class _AccountScreenState extends State<AccountScreen> {
 
   bool isDarkMode = false;
   String? _utilisateur;
+  String? userId;
+  String? userDocId; // To store the user's document ID
+  User? currentUser = FirebaseAuth.instance.currentUser;
 
   Future<void> _fetchData() async {
     try {
@@ -30,6 +36,30 @@ class _AccountScreenState extends State<AccountScreen> {
       });
     } catch (error) {
       print(error); // Handle errors appropriately
+    }
+  }
+
+  Future<void> _getUserDocId() async {
+    if (currentUser != null) {
+      try {
+        // Assuming your user documents are stored with their UID as the document ID
+        final docSnapshot = await FirebaseFirestore.instance
+            .collection('Users')
+            .doc(currentUser!.uid)
+            .get();
+
+        if (docSnapshot.exists) {
+          setState(() {
+            userDocId = docSnapshot.id; // Get the document ID
+          });
+        } else {
+          print("No document found for this user.");
+        }
+      } catch (e) {
+        print('Error fetching user document ID: $e');
+      }
+    } else {
+      print("No current user found.");
     }
   }
 
@@ -53,9 +83,9 @@ class _AccountScreenState extends State<AccountScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    authVM.buildProfileAvatar();
+    _fetchData();
+    _getUserDocId(); // Fetch the user's document ID
   }
 
   @override
@@ -99,7 +129,7 @@ class _AccountScreenState extends State<AccountScreen> {
           ],
         ),
         body: _isLoading
-            ? const CircularProgressIndicator()
+            ? const Center(child: CircularProgressIndicator())
             : SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.all(30),
@@ -199,7 +229,20 @@ class _AccountScreenState extends State<AccountScreen> {
                         icon: Ionicons.notifications,
                         bgColor: Colors.blue.shade100,
                         iconColor: Colors.blue,
-                        onTap: () {},
+                        onTap: () {
+                          if (userDocId != null) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    NotificationsPage(userId: userDocId!),
+                              ),
+                            );
+                            print("helloo $userDocId");
+                          } else {
+                            print("User document ID is null");
+                          }
+                        },
                       ),
                       const SizedBox(height: 20),
                       SettingSwitch(
@@ -228,7 +271,6 @@ class _AccountScreenState extends State<AccountScreen> {
                         icon: Ionicons.log_out,
                         bgColor: Colors.orange.shade100,
                         iconColor: Colors.orange,
-                        // value: "English",
                         onTap: () async {
                           final action = await AlertDialogs.yesCancelDialog(
                               context,
@@ -240,21 +282,21 @@ class _AccountScreenState extends State<AccountScreen> {
                             setState(() => tappedYes = false);
                           }
 
-                          /*    authVM.logout();
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const WelcomeScreen(),
-                            ),
-                          );*/
+                          if (tappedYes) {
+                            await authVM.logout();
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const WelcomeScreen(),
+                              ),
+                            );
+                          }
                         },
                       ),
                     ],
                   ),
                 ),
               ),
-        // }
-        // }),
       ),
     );
   }
@@ -291,24 +333,13 @@ class AlertDialogs {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromARGB(255, 39, 222, 169),
               ),
-              onPressed: () {
-                authVM.logout();
-                const CircularProgressIndicator();
-                Future.delayed(const Duration(seconds: 3));
-
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const WelcomeScreen(),
-                  ),
-                );
-              },
+              onPressed: () => Navigator.of(context).pop(DialogsAction.yes),
               child: const Text(
                 'Se déconnecter',
                 style:
                     TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
               ),
-            )
+            ),
           ],
         );
       },

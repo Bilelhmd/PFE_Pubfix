@@ -26,9 +26,9 @@ class ReclamViewModel {
 
       await savereclamationDataToFirestore(id, downloadUrl, UserName,
           description, service, adresse, cible, uidDemandeur, phone);
-      //List<String> tokens = await getAutorityTokensByCible(cible);
-      //  await sendNotificationToAutority(service, description, tokens);
-      //await saveNotificationAutority(cible, service, description);
+      List<String> tokens = await getAutorityTokensByCible(cible);
+      await sendNotificationToAutority(service, description, tokens);
+      await saveNotificationAutority(cible, service, description);
     } catch (e) {
       print("riadh$e");
     }

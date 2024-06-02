@@ -24,7 +24,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
         .collection('Users')
         .doc(widget.userId)
         .collection('Notification');
-
+    print(widget.userId);
     var snapshots = await collection.get();
     for (var doc in snapshots.docs) {
       await doc.reference.delete();

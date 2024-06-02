@@ -8,6 +8,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:pubfix/Screen/home_dashboard_Aut.dart';
 import 'package:pubfix/Screen_Aut/Actualit%C3%A9/liste_actualitenew.dart';
 import 'package:pubfix/global/global_instances.dart';
 
@@ -217,7 +218,7 @@ class _Add_ActualiteState extends State<Add_Actualite> {
                                           context,
                                           MaterialPageRoute(
                                             builder: (context) =>
-                                                const ListeActualite_aut(),
+                                                const Home_Aut(),
                                           ));
                                     }
                                   : details.onStepContinue,

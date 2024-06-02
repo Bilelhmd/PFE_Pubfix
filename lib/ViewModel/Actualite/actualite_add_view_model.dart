@@ -116,7 +116,6 @@ class Actualite_add_view_model {
 
   Future<void> saveNotificationUser(String title, String description) async {
     try {
-      print('mohamed');
       // Récupérer tous les documents dans la collection "Users"
       QuerySnapshot usersSnapshot =
           await FirebaseFirestore.instance.collection('Users').get();
