@@ -27,6 +27,7 @@ class _AccountScreenState extends State<AccountScreen> {
   String? userId;
   String? userDocId; // To store the user's document ID
   User? currentUser = FirebaseAuth.instance.currentUser;
+  final ValueNotifier<bool> _hasNewNotification = ValueNotifier<bool>(false);
 
   Future<void> _fetchData() async {
     try {
@@ -81,11 +82,26 @@ class _AccountScreenState extends State<AccountScreen> {
     }
   }
 
+  void _listenToNotifications() {
+    FirebaseFirestore.instance
+        .collection('Autorite')
+        .doc(currentUser!
+            .uid) // Remplacez USER_ID par l'ID de l'utilisateur actuel
+        .collection('Notification')
+        .snapshots()
+        .listen((snapshot) {
+      if (snapshot.docs.isNotEmpty) {
+        _hasNewNotification.value = true;
+      }
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     _fetchData();
-    _getUserDocId(); // Fetch the user's document ID
+    _getUserDocId();
+    _listenToNotifications();
   }
 
   @override
@@ -109,13 +125,50 @@ class _AccountScreenState extends State<AccountScreen> {
             style: TextStyle(color: Colors.white),
           ),
           actions: [
-            IconButton(
-              icon: const Icon(
-                Icons.notifications,
-                color: Colors.white,
-              ), // Icône de notification
-              onPressed: () {
-                // Action à effectuer lors de l'appui sur l'icône de notification
+            ValueListenableBuilder<bool>(
+              valueListenable: _hasNewNotification,
+              builder: (context, hasNewNotification, child) {
+                return Stack(
+                  children: [
+                    IconButton(
+                      icon: const Icon(
+                        Icons.notifications,
+                        color: Colors.white,
+                      ),
+                      onPressed: () {
+                        _hasNewNotification.value = false;
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => NotificationsPage(
+                                userId: currentUser?.uid ?? ''),
+                          ),
+                        );
+                      },
+                    ),
+                    if (hasNewNotification)
+                      Positioned(
+                        right: 11,
+                        top: 11,
+                        child: Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 14,
+                            minHeight: 14,
+                          ),
+                          child: const Icon(
+                            Icons.star,
+                            size: 10,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                  ],
+                );
               },
             ),
             SizedBox(

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -6,6 +7,7 @@ import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:pubfix/Model/Demande/demande_model_list.dart';
 import 'package:pubfix/Screen/home_dashboard.dart';
 import 'package:pubfix/Screen_citoyen/Actualite/liste_actualite_horizontal.dart';
+import 'package:pubfix/Screen_citoyen/Notification/Notification.dart';
 import 'package:pubfix/Screen_citoyen/rapport/liste_totale_horizontal.dart';
 import 'package:pubfix/ViewModel/demande/rapport_view_model.dart';
 import 'package:pubfix/global/global_instances.dart';
@@ -22,13 +24,10 @@ class _DashboardState extends State<Dashboard> {
   AnimationController? animationController;
   Animation<double>? animation;
   final double infoHeight = 364.0;
-  ////FONCTION POUR AFFICHER LES CARTES
-  ///  //FIN AFFICHAGE DE LA CARTE
   bool isFavorite = false;
-
-  //final DateFormat formatter = DateFormat('d MMMM yyyy', 'fr'); // French locale
-
   final FirestoreService _firestoreService = FirestoreService();
+  final User? currentUser = FirebaseAuth.instance.currentUser;
+  final ValueNotifier<bool> _hasNewNotification = ValueNotifier<bool>(false);
   List<DemandeModelList> _demandes = [];
   // final Set<Marker> _markers = {};
   void searchAndMarkAddress(String address, String serv, String desc) async {
@@ -71,6 +70,20 @@ class _DashboardState extends State<Dashboard> {
     }
   }
 
+  void _listenToNotifications() {
+    FirebaseFirestore.instance
+        .collection('Autorite')
+        .doc(currentUser!
+            .uid) // Remplacez USER_ID par l'ID de l'utilisateur actuel
+        .collection('Notification')
+        .snapshots()
+        .listen((snapshot) {
+      if (snapshot.docs.isNotEmpty) {
+        _hasNewNotification.value = true;
+      }
+    });
+  }
+
   final TextEditingController _adresseController = TextEditingController();
 
   GoogleMapController? _mapController;
@@ -82,6 +95,7 @@ class _DashboardState extends State<Dashboard> {
     super.initState();
     _getMarkersFromFirestore();
     _loadUserLocation();
+    _listenToNotifications();
     authVM.buildProfileAvatar();
   }
 
@@ -163,13 +177,50 @@ class _DashboardState extends State<Dashboard> {
               style: TextStyle(color: Colors.white),
             ),
             actions: [
-              IconButton(
-                icon: const Icon(
-                  Icons.notifications,
-                  color: Colors.white,
-                ), // Icône de notification
-                onPressed: () {
-                  // Action à effectuer lors de l'appui sur l'icône de notification
+              ValueListenableBuilder<bool>(
+                valueListenable: _hasNewNotification,
+                builder: (context, hasNewNotification, child) {
+                  return Stack(
+                    children: [
+                      IconButton(
+                        icon: const Icon(
+                          Icons.notifications,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          _hasNewNotification.value = false;
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => NotificationsPage(
+                                  userId: currentUser?.uid ?? ''),
+                            ),
+                          );
+                        },
+                      ),
+                      if (hasNewNotification)
+                        Positioned(
+                          right: 11,
+                          top: 11,
+                          child: Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            constraints: const BoxConstraints(
+                              minWidth: 14,
+                              minHeight: 14,
+                            ),
+                            child: const Icon(
+                              Icons.star,
+                              size: 10,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                    ],
+                  );
                 },
               ),
               SizedBox(

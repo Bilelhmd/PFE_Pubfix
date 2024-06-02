@@ -8,12 +8,10 @@ import 'package:geocoding/geocoding.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:pubfix/Model/Actualite/Actualite_model.dart';
-import 'package:pubfix/Screen_Aut/Actualit%C3%A9/actualite_list.dart';
 import 'package:pubfix/Screen_Aut/Actualit%C3%A9/edit_actualite.dart';
 import 'package:pubfix/Screen_Aut/Notification/Notification.dart';
 import 'package:pubfix/ViewModel/Actualite/ActualiteViewModel.dart';
 import 'package:pubfix/global/global_instances.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class ListeActualite_aut extends StatefulWidget {
   const ListeActualite_aut({super.key});

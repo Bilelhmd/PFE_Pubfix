@@ -1,4 +1,5 @@
 import 'package:cloud_firestore_platform_interface/src/timestamp.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:pubfix/Model/Actualite/Actualite_model.dart';
+import 'package:pubfix/Screen_citoyen/Notification/Notification.dart';
 import 'package:pubfix/global/global_instances.dart';
 
 class ListeActualite extends StatefulWidget {
@@ -18,11 +20,11 @@ class ListeActualite extends StatefulWidget {
 class _ListeActualiteState extends State<ListeActualite> {
   final String imageUrl = "";
   bool isFavorite = false;
-
+  final ValueNotifier<bool> _hasNewNotification = ValueNotifier<bool>(false);
   AnimationController? animationController;
   Animation<double>? animation;
   final double infoHeight = 364.0;
-
+  final User? currentUser = FirebaseAuth.instance.currentUser;
   final TextEditingController _adresseController = TextEditingController();
 
   //POUR L'AFFICHAGE DE LA CARTE
@@ -109,13 +111,50 @@ class _ListeActualiteState extends State<ListeActualite> {
             style: TextStyle(color: Colors.white),
           ),
           actions: [
-            IconButton(
-              icon: const Icon(
-                Icons.notifications,
-                color: Colors.white,
-              ), // Icône de notification
-              onPressed: () {
-                // Action à effectuer lors de l'appui sur l'icône de notification
+            ValueListenableBuilder<bool>(
+              valueListenable: _hasNewNotification,
+              builder: (context, hasNewNotification, child) {
+                return Stack(
+                  children: [
+                    IconButton(
+                      icon: const Icon(
+                        Icons.notifications,
+                        color: Colors.white,
+                      ),
+                      onPressed: () {
+                        _hasNewNotification.value = false;
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => NotificationsPage(
+                                userId: currentUser?.uid ?? ''),
+                          ),
+                        );
+                      },
+                    ),
+                    if (hasNewNotification)
+                      Positioned(
+                        right: 11,
+                        top: 11,
+                        child: Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 14,
+                            minHeight: 14,
+                          ),
+                          child: const Icon(
+                            Icons.star,
+                            size: 10,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                  ],
+                );
               },
             ),
             SizedBox(
