@@ -55,7 +55,7 @@ class _RapportsState extends State<Rapports> {
     double appBarHeight = kToolbarHeight;
 
     // Hauteur du BottomAppBar (vous pouvez définir une hauteur spécifique si nécessaire)
-    double bottomAppBarHeight = 56.0; // Hauteur par défaut pour BottomAppBar
+    double bottomAppBarHeight = 61.0; // Hauteur par défaut pour BottomAppBar
 
     // Hauteur disponible
     double availableHeight = totalHeight - appBarHeight - bottomAppBarHeight;

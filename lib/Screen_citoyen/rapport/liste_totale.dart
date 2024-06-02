@@ -97,7 +97,7 @@ class _DetailRapportState extends State<DetailRapport> {
   @override
   Widget build(BuildContext context) {
     final double tempHeight = MediaQuery.of(context).size.height -
-        (MediaQuery.of(context).size.width / 1.2) +
+        (MediaQuery.of(context).size.width) +
         24.0;
     final Size size = MediaQuery.of(context).size;
     return SafeArea(
