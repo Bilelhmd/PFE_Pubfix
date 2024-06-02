@@ -36,7 +36,7 @@ class _HomeState extends State<Home> {
               );
             },
             child: const Text(
-              'Ajouter une reclamation',
+              'Ajouter une demande de signalement',
               style: TextStyle(
                 color: Color.fromARGB(255, 16, 130, 58),
               ),
@@ -86,12 +86,6 @@ class _HomeState extends State<Home> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           _showActionSheet(context);
-          /* Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const DemandeReclamation(),
-            ),
-          );*/
         },
         backgroundColor: const Color.fromARGB(255, 14, 189, 148),
         shape: const CircleBorder(),
@@ -112,7 +106,7 @@ class _HomeState extends State<Home> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildBottomNavigationBarItem(Icons.home, "Acceuil", 0),
+              _buildBottomNavigationBarItem(Icons.home, "Accueil", 0),
               _buildBottomNavigationBarItem(
                   Icons.timer_outlined, "Demandes", 1),
               const Spacer(),
