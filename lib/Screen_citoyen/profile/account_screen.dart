@@ -84,7 +84,7 @@ class _AccountScreenState extends State<AccountScreen> {
 
   void _listenToNotifications() {
     FirebaseFirestore.instance
-        .collection('Autorite')
+        .collection('Users')
         .doc(currentUser!
             .uid) // Remplacez USER_ID par l'ID de l'utilisateur actuel
         .collection('Notification')

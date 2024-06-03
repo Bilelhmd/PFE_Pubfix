@@ -74,6 +74,7 @@ class FirestoreService {
   Future<List<String>> getUserTokensByIddemandeur(String idDemandeur) async {
     List<String> tokens = [];
     try {
+      print(idDemandeur);
       DocumentSnapshot docSnapshot = await FirebaseFirestore.instance
           .collection('Users')
           .doc(idDemandeur)
@@ -118,9 +119,10 @@ class FirestoreService {
       });
       List<String> tokens =
           await getUserTokensByIddemandeur(reclamationuidDemandeur);
-      print(reclamationuidDemandeur);
-      await sendNotificationToAutority(reclamationTitre, newStatus, tokens);
-      await saveNotificationAutority(reclamationTitre, newStatus);
+      print("hibilel" + reclamationuidDemandeur);
+      await sendNotificationToUser(reclamationTitre, newStatus, tokens);
+      await saveNotificationUser(
+          reclamationTitre, newStatus, reclamationuidDemandeur);
       print('Réclamation mis a jour avec succès.');
     } catch (error) {
       print(
@@ -129,7 +131,7 @@ class FirestoreService {
     }
   }
 
-  Future<void> sendNotificationToAutority(
+  Future<void> sendNotificationToUser(
       String titre, String description, List<String> tokens) async {
     const String serverToken =
         'AAAAkOPa5Kc:APA91bHLBTRQr2qsjWuUGl4mp3bXEnemZ3waRbTSlzMprdPVHoWc1xkpoORtAZi7dkpvMJuKT4Xq5vaqXZYJVuAOrKqVhieOUBoGiMe179Dal7q5-EwHb5ue8RYjYYCpBCpznCQxBHOX';
@@ -141,6 +143,7 @@ class FirestoreService {
     };
 
     for (String token in tokens) {
+      print("bilelsend" + token);
       final body = json.encode({
         'to': token,
         'notification': {
@@ -148,7 +151,7 @@ class FirestoreService {
           'body': description,
         },
       });
-      print("bilel$token");
+
       try {
         final response = await http.post(url, headers: headers, body: body);
         if (response.statusCode == 200) {
@@ -163,54 +166,31 @@ class FirestoreService {
     }
   }
 
-  Future<void> saveNotificationAutority(
-      String title, String description) async {
+  Future<void> saveNotificationUser(
+      String title, String description, String reclamationuidDemandeur) async {
     try {
-      // Récupérer tous les documents dans la collection "Users"
-      QuerySnapshot usersSnapshot =
-          await FirebaseFirestore.instance.collection('Users').get();
+      // Vérifier si l'utilisateur existe
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('Users')
+          .doc(reclamationuidDemandeur)
+          .get();
 
-      if (usersSnapshot.docs.isNotEmpty) {
-        // Parcourir tous les documents et ajouter la notification à chacun si fcmToken existe
-        for (var userDoc in usersSnapshot.docs) {
-          String userId = userDoc.id;
-
-          // Récupérer les tokens de la sous-collection "Token" de l'utilisateur
-          QuerySnapshot tokenSnapshot = await FirebaseFirestore.instance
-              .collection('Users')
-              .doc(userId)
-              .collection('Token')
-              .get();
-
-          bool hasFcmToken = false;
-
-          // Vérifier si un document avec 'fcmToken' existe dans la sous-collection "Token"
-          for (var tokenDoc in tokenSnapshot.docs) {
-            if (tokenDoc['fcmToken'] != null &&
-                tokenDoc['fcmToken'].isNotEmpty) {
-              hasFcmToken = true;
-              break;
-            }
-          }
-
-          // Si l'utilisateur a un fcmToken, ajouter la notification à sa sous-collection "Notification"
-          if (hasFcmToken) {
-            await FirebaseFirestore.instance
-                .collection('Users')
-                .doc(userId)
-                .collection('Notification')
-                .add({
-              'title': title,
-              'body': description,
-              'timestamp': Timestamp.now(),
-            });
-          }
-        }
+      if (userDoc.exists) {
+        // Ajouter la notification à la sous-collection "Notification" de l'utilisateur
+        await FirebaseFirestore.instance
+            .collection('Users')
+            .doc(reclamationuidDemandeur)
+            .collection('Notification')
+            .add({
+          'title': title,
+          'body': description,
+          'timestamp': Timestamp.now(),
+        });
 
         print(
-            'Notification enregistrée avec succès pour les utilisateurs actifs');
+            'Notification enregistrée avec succès pour l\'utilisateur spécifié.');
       } else {
-        print('Aucun utilisateur trouvé.');
+        print('Utilisateur non trouvé.');
       }
     } catch (e) {
       print('Erreur lors de l\'enregistrement de la notification: $e');

@@ -9,7 +9,10 @@
         android:icon="@mipmap/ic_launcher">
         <meta-data android:name="com.google.android.geo.API_KEY"
                android:value="AIzaSyDCKTAU1xUbl_J3Rbdv4hTuj9FrNjyBvpk"/>
-      
+      <meta-data
+              android:name="com.google.firebase.messaging.default_notification_icon"
+              android:resource="@drawable/logo"
+              />
             
         <activity
             android:name=".MainActivity"

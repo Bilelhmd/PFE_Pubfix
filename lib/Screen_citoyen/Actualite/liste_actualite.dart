@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_firestore_platform_interface/src/timestamp.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -79,9 +80,24 @@ class _ListeActualiteState extends State<ListeActualite> {
     });
   }
 
+  void _listenToNotifications() {
+    FirebaseFirestore.instance
+        .collection('Users')
+        .doc(currentUser!
+            .uid) // Remplacez USER_ID par l'ID de l'utilisateur actuel
+        .collection('Notification')
+        .snapshots()
+        .listen((snapshot) {
+      if (snapshot.docs.isNotEmpty) {
+        _hasNewNotification.value = true;
+      }
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+    _listenToNotifications();
     authVM.buildProfileAvatar();
     getDemandesData();
     controller.addListener(() {
