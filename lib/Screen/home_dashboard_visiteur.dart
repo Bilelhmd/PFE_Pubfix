@@ -83,47 +83,6 @@ class _Home_VisiteurState extends State<Home_Visiteur> {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(body: Dashboard_Visiteur());
-    /* _pages[_currentTabIndex],
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _showActionSheet(context);
-          /* Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const DemandeReclamation(),
-            ),
-          );*/
-        },
-        backgroundColor: const Color.fromARGB(255, 14, 189, 148),
-        shape: const CircleBorder(),
-        child: const Icon(
-          Icons.add,
-          color: Colors.white,
-        ),
-      ),*/
-    //  floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-    /*  bottomNavigationBar: BottomAppBar(
-        height: 65,
-        color: const Color.fromARGB(255, 14, 189, 148),
-        //  color: const Color.fromARGB(255, 39, 222, 169),
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 10,
-        child: SizedBox(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildBottomNavigationBarItem(Icons.home, "Acceuil", 0),
-              _buildBottomNavigationBarItem(
-                  Icons.timer_outlined, "Demandes", 1),
-              const Spacer(),
-              _buildBottomNavigationBarItem(
-                  Icons.app_registration_sharp, "Actualités", 2),
-              _buildBottomNavigationBarItem(Icons.settings, "Paramètres", 3),
-            ],
-          ),
-        ),
-      ),*/
   }
 
   Widget _buildBottomNavigationBarItem(IconData icon, String label, int index) {
