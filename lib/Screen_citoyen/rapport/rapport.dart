@@ -145,75 +145,78 @@ class _RapportsState extends State<Rapports> {
           ],
         ),
         body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(8),
-            child: Column(
-              children: [
-                SizedBox(
-                  height: 50,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Wrap(
-                        spacing: 5.0,
-                        children: List<Widget>.generate(
-                          _options.length,
-                          (index) {
-                            return ChoiceChip(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20.0),
-                              ),
-                              selectedColor: Colors.greenAccent,
-                              label: Text(_options[index]),
-                              selected: _selectedIndex == index,
-                              onSelected: (bool selected) {
-                                setState(() {
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: 50,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Wrap(
+                          spacing: 5.0,
+                          children: List<Widget>.generate(
+                            _options.length,
+                            (index) {
+                              return ChoiceChip(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20.0),
+                                ),
+                                selectedColor: Colors.greenAccent,
+                                label: Text(_options[index]),
+                                selected: _selectedIndex == index,
+                                onSelected: (bool selected) {
+                                  setState(() {
+                                    if (selected) {
+                                      _selectedIndex = index;
+                                    } else {
+                                      _selectedIndex = null;
+                                      _updateContent(
+                                          0); // Redirection vers la page DetailRapport lorsque tous les choix sont désélectionnés
+                                    }
+                                  });
+                                  // Redirection selon le choix sélectionné
                                   if (selected) {
-                                    _selectedIndex = index;
-                                  } else {
-                                    _selectedIndex = null;
-                                    _updateContent(
-                                        0); // Redirection vers la page DetailRapport lorsque tous les choix sont désélectionnés
+                                    switch (_options[index]) {
+                                      case 'En attente':
+                                        _updateContent(1);
+                                        break;
+                                      case 'En cours':
+                                        _updateContent(2);
+                                        break;
+                                      case 'Clôturées':
+                                        _updateContent(3);
+                                        break;
+                                      case 'Mes reclamations':
+                                        _updateContent(4);
+                                        break;
+                                      default:
+                                        //    _updateContent(index);
+                                        break;
+                                    }
                                   }
-                                });
-                                // Redirection selon le choix sélectionné
-                                if (selected) {
-                                  switch (_options[index]) {
-                                    case 'En attente':
-                                      _updateContent(1);
-                                      break;
-                                    case 'En cours':
-                                      _updateContent(2);
-                                      break;
-                                    case 'Clôturées':
-                                      _updateContent(3);
-                                      break;
-                                    case 'Mes reclamations':
-                                      _updateContent(4);
-                                      break;
-                                    default:
-                                      //    _updateContent(index);
-                                      break;
-                                  }
-                                }
-                              },
-                            );
-                          },
-                        ).toList(),
-                      ),
-                    ],
+                                },
+                              );
+                            },
+                          ).toList(),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                SizedBox(
-                  height: availableHeight - 106,
-                  //  height: MediaQuery.of(context).size.height * .7,
-                  child: IndexedStack(
-                    index: _currentIndex,
-                    children: _widgets,
-                  ),
-                )
-              ],
+                  SizedBox(
+                    height: 700,
+                    // availableHeight - 106,
+                    //  height: MediaQuery.of(context).size.height * .7,
+                    child: IndexedStack(
+                      index: _currentIndex,
+                      children: _widgets,
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
         ),

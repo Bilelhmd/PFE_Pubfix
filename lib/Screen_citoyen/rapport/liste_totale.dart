@@ -511,7 +511,8 @@ class _DetailRapportState extends State<DetailRapport> {
                                                                   height: 60,
                                                                   child:
                                                                       InkWell(
-                                                                    onTap: () {
+                                                                    onTap:
+                                                                        () async {
                                                                       final user = FirebaseAuth
                                                                           .instance
                                                                           .currentUser;
@@ -521,101 +522,90 @@ class _DetailRapportState extends State<DetailRapport> {
                                                                         return;
                                                                       }
 
-                                                                      try {
-                                                                        //verification apprové
-                                                                        if (demande
-                                                                            .isUrgent) {
-                                                                          // Show message that approval has already been done
-                                                                          ScaffoldMessenger.of(context)
-                                                                              .showSnackBar(const SnackBar(content: Text('Vous avez déjà approuvé cette demande.')));
-                                                                          return;
-                                                                        }
-                                                                        //Verification submitted
+                                                                      // Check if the request has already been approved
+                                                                      if (demande
+                                                                          .isUrgent) {
+                                                                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                                                                            content:
+                                                                                Text('Vous avez déjà approuvé cette demande.')));
+                                                                        return;
+                                                                      }
 
-                                                                        // Show confirmation dialog
-                                                                        showDialog(
-                                                                          context:
-                                                                              context,
-                                                                          builder:
-                                                                              (BuildContext context) {
-                                                                            return AlertDialog(
-                                                                              title: const Text('Confirmation'),
-                                                                              content: const Column(
-                                                                                mainAxisSize: MainAxisSize.min,
-                                                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                                                children: [
-                                                                                  Text(
-                                                                                    'Êtes-vous sûr de vouloir approuver cette demande ?',
-                                                                                    style: TextStyle(fontSize: 16),
-                                                                                  ),
-                                                                                  SizedBox(height: 10),
-                                                                                  Text(
-                                                                                    'L\'approbation est une action importante et critique. Une fois approuvée, cette demande ne peut pas être annulée.',
-                                                                                    style: TextStyle(color: Colors.red),
-                                                                                  ),
-                                                                                ],
-                                                                              ),
-                                                                              actions: <Widget>[
-                                                                                TextButton(
-                                                                                  onPressed: () async {
-                                                                                    print("riadh :${demande.numberOfApprovals}");
+                                                                      // Show confirmation dialog if the request has not been approved
+                                                                      showDialog(
+                                                                        context:
+                                                                            context,
+                                                                        builder:
+                                                                            (BuildContext
+                                                                                context) {
+                                                                          return AlertDialog(
+                                                                            title:
+                                                                                const Text('Confirmation'),
+                                                                            content:
+                                                                                const Column(
+                                                                              mainAxisSize: MainAxisSize.min,
+                                                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                                                              children: [
+                                                                                Text(
+                                                                                  'Êtes-vous sûr de vouloir approuver cette demande ?',
+                                                                                  style: TextStyle(fontSize: 16),
+                                                                                ),
+                                                                                SizedBox(height: 10),
+                                                                                Text(
+                                                                                  'L\'approbation est une action importante et critique. Une fois approuvée, cette demande ne peut pas être annulée.',
+                                                                                  style: TextStyle(color: Colors.red),
+                                                                                ),
+                                                                              ],
+                                                                            ),
+                                                                            actions: <Widget>[
+                                                                              TextButton(
+                                                                                onPressed: () async {
+                                                                                  // Close the dialog
+                                                                                  Navigator.of(context).pop();
 
+                                                                                  try {
                                                                                     // Toggle the isUrgent state
                                                                                     setState(() {
                                                                                       demande.isUrgent = !demande.isUrgent;
                                                                                     });
 
-                                                                                    // Close the dialog
-                                                                                    Navigator.of(context).pop();
-
-                                                                                    try {
-                                                                                      // Update Firestore and show success message
-                                                                                      if (demande.isUrgent) {
-                                                                                        await _firestoreService.addApprobationDocument(demande.id, demande.demandeur);
-                                                                                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                                                                                          content: Text('Approbation faite avec succès.'),
-                                                                                        ));
-                                                                                      }
-
-                                                                                      // Verification submitted
-                                                                                      if (demande.numberOfApprovals >= 1) {
-                                                                                        await ReclamVM.validatereclamationForm(
-                                                                                          demande.id,
-                                                                                          demande.image,
-                                                                                          sharefPrefrences!.getString("name").toString(),
-                                                                                          demande.adresse,
-                                                                                          demande.service,
-                                                                                          demande.cible,
-                                                                                          demande.description,
-                                                                                          demande.uid_demandeur,
-                                                                                          demande.phone,
-                                                                                        );
-                                                                                      }
-                                                                                    } catch (e) {
-                                                                                      print("Error: $e");
-                                                                                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                                                                        content: Text('Erreur : $e'),
-                                                                                      ));
+                                                                                    // Update Firestore and show success message
+                                                                                    if (demande.isUrgent) {
+                                                                                      await _firestoreService.addApprobationDocument(demande.id, demande.demandeur);
                                                                                     }
-                                                                                  },
-                                                                                  child: const Text('Confirmer'),
-                                                                                ),
-                                                                                TextButton(
-                                                                                  onPressed: () {
-                                                                                    // Close the dialog
-                                                                                    Navigator.of(context).pop();
-                                                                                  },
-                                                                                  child: const Text('Annuler'),
-                                                                                ),
-                                                                              ],
-                                                                            );
-                                                                          },
-                                                                        );
-                                                                      } catch (error) {
-                                                                        // Handle error
-                                                                        print(
-                                                                            'Error: $error');
-                                                                      }
+                                                                                    if (demande.numberOfApprovals >= 2) {
+                                                                                      await ReclamVM.validatereclamationForm(
+                                                                                        demande.id,
+                                                                                        demande.image,
+                                                                                        sharefPrefrences!.getString("name").toString(),
+                                                                                        demande.adresse,
+                                                                                        demande.service,
+                                                                                        demande.cible,
+                                                                                        demande.description,
+                                                                                        demande.uid_demandeur,
+                                                                                        demande.phone,
+                                                                                      );
+                                                                                    }
+
+                                                                                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Demande approuvée avec succès.')));
+                                                                                  } catch (e) {
+                                                                                    print("Error: $e");
+                                                                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur : $e')));
+                                                                                  }
+                                                                                },
+                                                                                child: const Text('Confirmer'),
+                                                                              ),
+                                                                              TextButton(
+                                                                                onPressed: () {
+                                                                                  // Close the dialog
+                                                                                  Navigator.of(context).pop();
+                                                                                },
+                                                                                child: const Text('Annuler'),
+                                                                              ),
+                                                                            ],
+                                                                          );
+                                                                        },
+                                                                      );
                                                                     },
                                                                     child: demande
                                                                             .isUrgent

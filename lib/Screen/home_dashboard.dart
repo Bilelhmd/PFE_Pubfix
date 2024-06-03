@@ -24,8 +24,6 @@ class _HomeState extends State<Home> {
         message: const Text('Ajouter une reclamation ou évènement bénévole '),
         actions: <CupertinoActionSheetAction>[
           CupertinoActionSheetAction(
-            /// This parameter indicates the action would be a default
-            /// default behavior, turns the action's text to bold text.
             isDefaultAction: true,
             onPressed: () {
               Navigator.push(
@@ -36,7 +34,7 @@ class _HomeState extends State<Home> {
               );
             },
             child: const Text(
-              'Ajouter une demande de signalement',
+              'Ajouter une reclamation',
               style: TextStyle(
                 color: Color.fromARGB(255, 16, 130, 58),
               ),
@@ -82,7 +80,9 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_currentTabIndex],
+      body: SafeArea(
+        child: _pages[_currentTabIndex],
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           _showActionSheet(context);
@@ -96,20 +96,22 @@ class _HomeState extends State<Home> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomAppBar(
-        height: 65,
         color: const Color.fromARGB(255, 14, 189, 148),
-        //  color: const Color.fromARGB(255, 39, 222, 169),
         shape: const CircularNotchedRectangle(),
         notchMargin: 10,
         child: SizedBox(
+          height: 65,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               _buildBottomNavigationBarItem(Icons.home, "Accueil", 0),
               _buildBottomNavigationBarItem(
                   Icons.timer_outlined, "Demandes", 1),
-              const Spacer(),
+              // const Spacer(),
+              const SizedBox(
+                width: 10,
+              ),
               _buildBottomNavigationBarItem(
                   Icons.app_registration_sharp, "Actualités", 2),
               _buildBottomNavigationBarItem(Icons.settings, "Paramètres", 3),
@@ -121,29 +123,30 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildBottomNavigationBarItem(IconData icon, String label, int index) {
-    return MaterialButton(
-      onPressed: () => _onTabTapped(index),
-      child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              color: _currentTabIndex == index
-                  ? const Color.fromRGBO(0, 117, 117, 1)
-                  : Colors.white,
-              //   color: _currentTabIndex == index ? Colors.black : Colors.white,
-            ),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 10,
+    return Expanded(
+      child: MaterialButton(
+        onPressed: () => _onTabTapped(index),
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
                 color: _currentTabIndex == index
                     ? const Color.fromRGBO(0, 117, 117, 1)
                     : Colors.white,
               ),
-            ),
-          ],
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 10,
+                  color: _currentTabIndex == index
+                      ? const Color.fromRGBO(0, 117, 117, 1)
+                      : Colors.white,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
