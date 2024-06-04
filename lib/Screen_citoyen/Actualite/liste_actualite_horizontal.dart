@@ -68,10 +68,10 @@ class _ListeActualiteHorizontalState extends State<ListeActualiteHorizontal> {
   bool closeTopContainer = false;
   double topContainer = 0;
 
-  List<Actualite> itemsData = [];
+  List<Evenement> itemsData = [];
 
   void getDemandesData() async {
-    List<Actualite> responseList = await ActVM.getActualites();
+    List<Evenement> responseList = await ActVM.getActualites();
 
     setState(() {
       itemsData = responseList;

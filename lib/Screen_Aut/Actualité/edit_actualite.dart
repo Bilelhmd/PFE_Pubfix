@@ -10,7 +10,7 @@ import 'package:pubfix/Model/Actualite/Actualite_model.dart';
 import 'package:pubfix/ViewModel/Actualite/ActualiteViewModel.dart';
 
 class EditActualite extends StatefulWidget {
-  final Actualite actualite;
+  final Evenement actualite;
 
   const EditActualite({required this.actualite, super.key});
 

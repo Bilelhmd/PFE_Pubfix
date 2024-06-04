@@ -7,25 +7,30 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:pubfix/Model/Actualite/Actualite_model.dart';
-import 'package:pubfix/Screen_citoyen/Notification/Notification.dart';
+import 'package:pubfix/Model/Evenement/Evenement_model.dart';
+import 'package:pubfix/Screen_Aut/Notification/Notification.dart';
+import 'package:pubfix/ViewModel/Evenement/Evenement_view_model.dart';
 import 'package:pubfix/global/global_instances.dart';
 
-class ListeActualite extends StatefulWidget {
-  const ListeActualite({super.key});
+class ListeEvenement extends StatefulWidget {
+  const ListeEvenement({super.key});
 
   @override
-  _ListeActualiteState createState() => _ListeActualiteState();
+  _ListeEvenementState createState() => _ListeEvenementState();
 }
 
-class _ListeActualiteState extends State<ListeActualite> {
+class _ListeEvenementState extends State<ListeEvenement> {
+  Evenement? _selectedEvenement;
+  final EvenementViewModel _evenementViewModel = EvenementViewModel();
   final String imageUrl = "";
   bool isFavorite = false;
-  final ValueNotifier<bool> _hasNewNotification = ValueNotifier<bool>(false);
+  bool _isLoading = true;
   AnimationController? animationController;
   Animation<double>? animation;
   final double infoHeight = 364.0;
+  String? preferredName;
   final User? currentUser = FirebaseAuth.instance.currentUser;
+  final ValueNotifier<bool> _hasNewNotification = ValueNotifier<bool>(false);
   final TextEditingController _adresseController = TextEditingController();
 
   //POUR L'AFFICHAGE DE LA CARTE
@@ -72,17 +77,47 @@ class _ListeActualiteState extends State<ListeActualite> {
 
   List<Evenement> itemsData = [];
 
-  void getDemandesData() async {
-    List<Evenement> responseList = await ActVM.getActualites();
+  void getevenementsData() async {
+    List<Evenement> responseList = await _evenementViewModel.getEvenement();
 
     setState(() {
       itemsData = responseList;
     });
   }
 
+  Future<String?> getEvenementNom() async {
+    try {
+      User? currentUser = FirebaseAuth.instance.currentUser;
+
+      if (currentUser == null) {
+        print('Utilisateur non connecté');
+        return null;
+      }
+
+      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+          .collection('Users')
+          .doc(currentUser.uid)
+          .get();
+
+      if (userSnapshot.exists && userSnapshot.data() != null) {
+        Map<String, dynamic> userData =
+            userSnapshot.data() as Map<String, dynamic>;
+        String? userName = userData['name'] as String?;
+        print("bileel" + userName!);
+        return userName;
+      } else {
+        print('Document utilisateur non trouvé');
+        return null;
+      }
+    } catch (e) {
+      print('Erreur lors de la récupération des détails de l\'utilisateur: $e');
+      return null;
+    }
+  }
+
   void _listenToNotifications() {
     FirebaseFirestore.instance
-        .collection('Users')
+        .collection('Evenement')
         .doc(currentUser!
             .uid) // Remplacez USER_ID par l'ID de l'utilisateur actuel
         .collection('Notification')
@@ -97,9 +132,10 @@ class _ListeActualiteState extends State<ListeActualite> {
   @override
   void initState() {
     super.initState();
-    _listenToNotifications();
+    _loadPreferredName();
     authVM.buildProfileAvatar();
-    getDemandesData();
+    getevenementsData();
+    _listenToNotifications();
     controller.addListener(() {
       double value = controller.offset / 119;
 
@@ -107,6 +143,14 @@ class _ListeActualiteState extends State<ListeActualite> {
         topContainer = value;
         closeTopContainer = controller.offset > 50;
       });
+    });
+  }
+
+  Future<void> _loadPreferredName() async {
+    String? organisateurName = await getEvenementNom();
+    setState(() {
+      preferredName = organisateurName;
+      print("Fetched Nom from Firebase: $preferredName");
     });
   }
 
@@ -123,7 +167,7 @@ class _ListeActualiteState extends State<ListeActualite> {
           automaticallyImplyLeading: false,
           backgroundColor: const Color.fromARGB(255, 14, 189, 148),
           title: const Text(
-            'Actualités',
+            'Evénements',
             style: TextStyle(color: Colors.white),
           ),
           actions: [
@@ -176,7 +220,7 @@ class _ListeActualiteState extends State<ListeActualite> {
             SizedBox(
               height: 40,
               width: 40,
-              child: authVM.buildProfileAvatar(),
+              child: authautoriteVMODEL.buildProfileAvatar(),
             ),
             const SizedBox(
               width: 15,
@@ -195,9 +239,9 @@ class _ListeActualiteState extends State<ListeActualite> {
                           itemCount: itemsData.length,
                           physics: const BouncingScrollPhysics(),
                           itemBuilder: (context, index) {
-                            final demande = itemsData[index];
+                            final evenement = itemsData[index];
                             Timestamp timestamp =
-                                Timestamp.fromDate(demande.date);
+                                Timestamp.fromDate(evenement.date);
 
                             double scale = 1.0;
                             if (topContainer > 0.5) {
@@ -244,9 +288,9 @@ class _ListeActualiteState extends State<ListeActualite> {
                                             height: double.infinity + 50,
                                             margin: const EdgeInsets.only(
                                                 right: 10),
-                                            child: demande.image.isNotEmpty
+                                            child: evenement.image.isNotEmpty
                                                 ? Image.network(
-                                                    demande.image,
+                                                    evenement.image,
                                                     width: 80,
                                                     // height: 100,
                                                     fit: BoxFit
@@ -262,11 +306,11 @@ class _ListeActualiteState extends State<ListeActualite> {
                                           child: ListTile(
                                             onTap: () {
                                               _adresseController.text =
-                                                  demande.localisation;
+                                                  evenement.lieu;
                                               searchAndMarkAddress(
-                                                  demande.localisation,
-                                                  demande.titre,
-                                                  demande.description);
+                                                  evenement.lieu,
+                                                  evenement.titre,
+                                                  evenement.description);
                                               Navigator.push(
                                                 context,
                                                 MaterialPageRoute<Widget>(
@@ -305,11 +349,11 @@ class _ListeActualiteState extends State<ListeActualite> {
                                                                         controller;
                                                                     //    setState(() {
                                                                     searchAndMarkAddress(
-                                                                        demande
-                                                                            .localisation,
-                                                                        demande
+                                                                        evenement
+                                                                            .lieu,
+                                                                        evenement
                                                                             .titre,
-                                                                        demande
+                                                                        evenement
                                                                             .description);
                                                                     //    });
                                                                   },
@@ -319,7 +363,7 @@ class _ListeActualiteState extends State<ListeActualite> {
                                                                     target: LatLng(
                                                                         32.929674,
                                                                         10.451767),
-                                                                    zoom: 12.0,
+                                                                    zoom: 14.0,
                                                                   ),
                                                                 ),
                                                               ),
@@ -402,7 +446,7 @@ class _ListeActualiteState extends State<ListeActualite> {
                                                                               16),
                                                                       child:
                                                                           Text(
-                                                                        demande
+                                                                        evenement
                                                                             .titre,
                                                                         style: GoogleFonts
                                                                             .poppins(
@@ -439,7 +483,7 @@ class _ListeActualiteState extends State<ListeActualite> {
                                                                                 1,
                                                                             child:
                                                                                 Text(
-                                                                              "Publié par :",
+                                                                              "Demandé par :",
                                                                               textAlign: TextAlign.left,
                                                                               style: TextStyle(
                                                                                 fontFamily: 'Roboto',
@@ -455,7 +499,7 @@ class _ListeActualiteState extends State<ListeActualite> {
                                                                                 1,
                                                                             child:
                                                                                 Text(
-                                                                              demande.autorite,
+                                                                              evenement.organisateur,
                                                                               textAlign: TextAlign.left,
                                                                               style: const TextStyle(
                                                                                 fontFamily: 'Roboto',
@@ -471,7 +515,7 @@ class _ListeActualiteState extends State<ListeActualite> {
                                                                                 1,
                                                                             child:
                                                                                 Text(
-                                                                              demande.date != null ? ActVM.formatDate(ActVM.timestampToDateTime(timestamp)) : "",
+                                                                              evenement.date != null ? _evenementViewModel.formatDate(_evenementViewModel.timestampToDateTime(timestamp)) : "",
                                                                               style: const TextStyle(
                                                                                 fontFamily: 'Roboto',
                                                                                 fontSize: 12,
@@ -480,6 +524,42 @@ class _ListeActualiteState extends State<ListeActualite> {
                                                                           ),
                                                                         ],
                                                                       ),
+                                                                    ),
+                                                                    FutureBuilder<
+                                                                        int>(
+                                                                      future: EvenVM.getParticipantCount(
+                                                                          evenement
+                                                                              .id),
+                                                                      builder:
+                                                                          (context,
+                                                                              snapshot) {
+                                                                        if (snapshot.connectionState ==
+                                                                            ConnectionState
+                                                                                .waiting) {
+                                                                          return CircularProgressIndicator();
+                                                                        } else if (snapshot
+                                                                            .hasError) {
+                                                                          return Text(
+                                                                              'Error: ${snapshot.error}');
+                                                                        } else {
+                                                                          int participantCount =
+                                                                              snapshot.data ?? 0;
+                                                                          return Row(
+                                                                            children: [
+                                                                              Expanded(
+                                                                                child: Text(
+                                                                                  'Participants: $participantCount',
+                                                                                  style: const TextStyle(
+                                                                                    fontFamily: 'Roboto',
+                                                                                    fontSize: 12,
+                                                                                    color: Colors.black,
+                                                                                  ),
+                                                                                ),
+                                                                              ),
+                                                                            ],
+                                                                          );
+                                                                        }
+                                                                      },
                                                                     ),
                                                                     Expanded(
                                                                       child:
@@ -498,7 +578,7 @@ class _ListeActualiteState extends State<ListeActualite> {
                                                                               bottom: 8),
                                                                           child:
                                                                               Text(
-                                                                            demande.description,
+                                                                            evenement.description,
                                                                             textAlign:
                                                                                 TextAlign.justify,
                                                                             style:
@@ -532,7 +612,7 @@ class _ListeActualiteState extends State<ListeActualite> {
                                                                             Navigator.push(
                                                                               context,
                                                                               MaterialPageRoute(
-                                                                                builder: (context) => ImageZoomPage(imageUrl: demande.image),
+                                                                                builder: (context) => ImageZoomPage(imageUrl: evenement.image),
                                                                               ),
                                                                             );
                                                                           },
@@ -553,7 +633,7 @@ class _ListeActualiteState extends State<ListeActualite> {
                                                                                 ClipRRect(
                                                                               borderRadius: BorderRadius.circular(15.0),
                                                                               child: Image.network(
-                                                                                demande.image,
+                                                                                evenement.image,
                                                                                 height: 250,
                                                                                 fit: BoxFit.cover,
                                                                                 loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
@@ -586,6 +666,259 @@ class _ListeActualiteState extends State<ListeActualite> {
                                                             ),
                                                           ),
                                                         ),
+                                                        if (preferredName !=
+                                                                null &&
+                                                            evenement
+                                                                    .organisateur ==
+                                                                preferredName)
+                                                          Positioned(
+                                                            top: (MediaQuery.of(
+                                                                            context)
+                                                                        .size
+                                                                        .width /
+                                                                    1.2) -
+                                                                24.0 -
+                                                                35,
+                                                            right: 35,
+                                                            child: Card(
+                                                              color: const Color
+                                                                  .fromARGB(255,
+                                                                  39, 222, 169),
+                                                              shape: RoundedRectangleBorder(
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              50.0)),
+                                                              elevation: 10.0,
+                                                              child: SizedBox(
+                                                                width: 50,
+                                                                height: 50,
+                                                                child:
+                                                                    IconButton(
+                                                                        onPressed:
+                                                                            () {
+                                                                          showDialog(
+                                                                            context:
+                                                                                context,
+                                                                            builder:
+                                                                                (BuildContext context) {
+                                                                              return AlertDialog(
+                                                                                title: const Text("Confirmation"),
+                                                                                content: const Text("Voulez-vous vraiment supprimer cette evenement ?"),
+                                                                                actions: [
+                                                                                  TextButton(
+                                                                                    onPressed: () {
+                                                                                      Navigator.pop(context); // Ferme la boîte de dialogue
+                                                                                    },
+                                                                                    child: const Text("Annuler"),
+                                                                                  ),
+                                                                                  TextButton(
+                                                                                    onPressed: () {
+                                                                                      _evenementViewModel.deleteEvenement(evenement.id);
+                                                                                      Navigator.pop(context); // Ferme la boîte de dialogue
+                                                                                      Navigator.push(
+                                                                                        context,
+                                                                                        MaterialPageRoute(builder: (context) => const ListeEvenement()),
+                                                                                      );
+                                                                                    },
+                                                                                    child: const Text("Supprimer"),
+                                                                                  ),
+                                                                                ],
+                                                                              );
+                                                                            },
+                                                                          );
+                                                                        },
+                                                                        icon: const Icon(
+                                                                            Icons
+                                                                                .delete,
+                                                                            color:
+                                                                                Colors.white)),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        // Positioned widget for the participant count
+                                                        FutureBuilder<int>(
+                                                          future: EvenVM
+                                                              .getParticipantCount(
+                                                                  evenement.id),
+                                                          builder: (context,
+                                                              snapshot) {
+                                                            if (snapshot
+                                                                    .connectionState ==
+                                                                ConnectionState
+                                                                    .waiting) {
+                                                              return Positioned(
+                                                                top: (MediaQuery.of(context)
+                                                                            .size
+                                                                            .width /
+                                                                        1.2) -
+                                                                    24.0 -
+                                                                    35 -
+                                                                    60,
+                                                                right: 35,
+                                                                child:
+                                                                    CircularProgressIndicator(),
+                                                              );
+                                                            } else if (snapshot
+                                                                .hasError) {
+                                                              return Positioned(
+                                                                top: (MediaQuery.of(context)
+                                                                            .size
+                                                                            .width /
+                                                                        1.2) -
+                                                                    24.0 -
+                                                                    35 -
+                                                                    60,
+                                                                right: 35,
+                                                                child: Text(
+                                                                    'Error: ${snapshot.error}'),
+                                                              );
+                                                            } else {
+                                                              int participantCount =
+                                                                  snapshot.data ??
+                                                                      0;
+                                                              return Positioned(
+                                                                top: (MediaQuery.of(context)
+                                                                            .size
+                                                                            .width /
+                                                                        1.2) -
+                                                                    24.0 -
+                                                                    35 -
+                                                                    60,
+                                                                right: 35,
+                                                                child: Card(
+                                                                  color: const Color
+                                                                      .fromARGB(
+                                                                      255,
+                                                                      39,
+                                                                      222,
+                                                                      169),
+                                                                  shape:
+                                                                      RoundedRectangleBorder(
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                            50.0),
+                                                                  ),
+                                                                  elevation:
+                                                                      10.0,
+                                                                  child:
+                                                                      Padding(
+                                                                    padding:
+                                                                        const EdgeInsets
+                                                                            .all(
+                                                                            8.0),
+                                                                    child: Row(
+                                                                      mainAxisSize:
+                                                                          MainAxisSize
+                                                                              .min,
+                                                                      children: [
+                                                                        Text(
+                                                                          '$participantCount',
+                                                                          style:
+                                                                              const TextStyle(
+                                                                            fontFamily:
+                                                                                'Roboto',
+                                                                            fontWeight:
+                                                                                FontWeight.bold,
+                                                                            fontSize:
+                                                                                14,
+                                                                            color:
+                                                                                Colors.white,
+                                                                          ),
+                                                                        ),
+                                                                        const SizedBox(
+                                                                            width:
+                                                                                4),
+                                                                        const Text(
+                                                                          'participants',
+                                                                          style:
+                                                                              TextStyle(
+                                                                            fontFamily:
+                                                                                'Roboto',
+                                                                            fontWeight:
+                                                                                FontWeight.bold,
+                                                                            fontSize:
+                                                                                14,
+                                                                            color:
+                                                                                Colors.white,
+                                                                          ),
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            }
+                                                          },
+                                                        ),
+                                                        if (preferredName !=
+                                                                null &&
+                                                            evenement
+                                                                    .organisateur !=
+                                                                preferredName)
+                                                          Positioned(
+                                                            top: (MediaQuery.of(
+                                                                            context)
+                                                                        .size
+                                                                        .width /
+                                                                    1.2) -
+                                                                24.0 -
+                                                                35,
+                                                            right: 35,
+                                                            child: Card(
+                                                              color: const Color
+                                                                  .fromARGB(255,
+                                                                  39, 222, 169),
+                                                              shape: RoundedRectangleBorder(
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              50.0)),
+                                                              elevation: 10.0,
+                                                              child: SizedBox(
+                                                                width: 50,
+                                                                height: 50,
+                                                                child:
+                                                                    IconButton(
+                                                                  onPressed:
+                                                                      evenement.id !=
+                                                                              null
+                                                                          ? () {
+                                                                              showDialog(
+                                                                                context: context,
+                                                                                builder: (BuildContext context) {
+                                                                                  return AlertDialog(
+                                                                                    title: const Text("Confirmation"),
+                                                                                    content: const Text("Voulez-vous participer à cet événement ?"),
+                                                                                    actions: [
+                                                                                      TextButton(
+                                                                                        onPressed: () {
+                                                                                          Navigator.pop(context); // Close the dialog
+                                                                                        },
+                                                                                        child: const Text("Annuler"),
+                                                                                      ),
+                                                                                      TextButton(
+                                                                                        onPressed: () async {
+                                                                                          await EvenVM.addParticipationDocument(evenement.id);
+                                                                                          Navigator.pop(context); // Close the dialog
+                                                                                        },
+                                                                                        child: const Text("Confirmer"),
+                                                                                      ),
+                                                                                    ],
+                                                                                  );
+                                                                                },
+                                                                              );
+                                                                            }
+                                                                          : null,
+                                                                  icon: const Icon(
+                                                                      Icons
+                                                                          .volunteer_activism,
+                                                                      color: Colors
+                                                                          .white),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
                                                         Padding(
                                                           padding: EdgeInsets.only(
                                                               top: MediaQuery.of(
@@ -635,7 +968,7 @@ class _ListeActualiteState extends State<ListeActualite> {
                                             },
                                             title: Expanded(
                                               child: Text(
-                                                demande.titre,
+                                                evenement.titre,
                                                 style: const TextStyle(
                                                     fontWeight: FontWeight.bold,
                                                     fontSize: 14),
@@ -648,7 +981,7 @@ class _ListeActualiteState extends State<ListeActualite> {
                                                   alignment:
                                                       Alignment.centerLeft,
                                                   child: Text(
-                                                    demande.autorite,
+                                                    evenement.organisateur,
                                                     style: const TextStyle(
                                                         fontWeight:
                                                             FontWeight.bold,
@@ -660,7 +993,7 @@ class _ListeActualiteState extends State<ListeActualite> {
                                                   alignment:
                                                       Alignment.centerLeft,
                                                   child: Text(
-                                                      demande.description,
+                                                      evenement.description,
                                                       textAlign: TextAlign.left,
                                                       maxLines: 3,
                                                       overflow: TextOverflow

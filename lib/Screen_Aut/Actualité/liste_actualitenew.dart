@@ -21,7 +21,7 @@ class ListeActualite_aut extends StatefulWidget {
 }
 
 class _ListeActualite_autState extends State<ListeActualite_aut> {
-  Actualite? _selectedActualite;
+  Evenement? _selectedActualite;
   final ActualiteViewModel _actualiteViewModel = ActualiteViewModel();
   final String imageUrl = "";
   bool isFavorite = false;
@@ -76,10 +76,10 @@ class _ListeActualite_autState extends State<ListeActualite_aut> {
   bool closeTopContainer = false;
   double topContainer = 0;
 
-  List<Actualite> itemsData = [];
+  List<Evenement> itemsData = [];
 
   void getactualitesData() async {
-    List<Actualite> responseList = await _actualiteViewModel.getActualites();
+    List<Evenement> responseList = await _actualiteViewModel.getActualites();
 
     setState(() {
       itemsData = responseList;

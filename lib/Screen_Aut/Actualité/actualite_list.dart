@@ -17,7 +17,7 @@ class _actualite_listState extends State<actualite_list> {
   bool _isLoading = true;
   Map<String, dynamic>? _actualiteData;
 
-  Actualite? _selectedActualite;
+  Evenement? _selectedActualite;
   @override
   void initState() {
     super.initState();
@@ -254,7 +254,7 @@ class _actualite_listState extends State<actualite_list> {
   }
 
   Widget _buildListItem(BuildContext context, int index) {
-    Actualite actualite = _actualiteViewModel.actualites[index];
+    Evenement actualite = _actualiteViewModel.actualites[index];
     return Container(
       width: 150,
       height: 300,

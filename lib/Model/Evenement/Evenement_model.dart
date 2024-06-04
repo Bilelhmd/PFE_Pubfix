@@ -1,19 +1,19 @@
 class Evenement {
   String id;
   String titre;
-  String autorite;
+  String organisateur;
   String description;
   DateTime date;
   String image;
-  String localisation;
+  String lieu;
 
   Evenement({
     required this.id,
     required this.titre,
-    required this.autorite,
+    required this.organisateur,
     required this.description,
     required this.date,
     required this.image,
-    required this.localisation,
+    required this.lieu,
   });
 }

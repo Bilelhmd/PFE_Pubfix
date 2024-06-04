@@ -70,10 +70,10 @@ class _ListeActualite1State extends State<ListeActualite1> {
   bool closeTopContainer = false;
   double topContainer = 0;
 
-  List<Actualite> itemsData = [];
+  List<Evenement> itemsData = [];
 
   void getDemandesData() async {
-    List<Actualite> responseList = await _actualiteViewModel.getActualites();
+    List<Evenement> responseList = await _actualiteViewModel.getActualites();
 
     setState(() {
       itemsData = responseList;

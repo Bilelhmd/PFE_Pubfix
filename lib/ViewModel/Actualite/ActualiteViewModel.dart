@@ -5,9 +5,9 @@ import 'package:pubfix/Model/Actualite/Actualite_model.dart';
 
 class ActualiteViewModel extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  List<Actualite> _actualites = [];
+  List<Evenement> _actualites = [];
 
-  List<Actualite> get actualites => _actualites;
+  List<Evenement> get actualites => _actualites;
 
   Future<void> loadActualites() async {
     try {
@@ -15,7 +15,7 @@ class ActualiteViewModel extends ChangeNotifier {
       final querySnapshot = await collectionRef.get();
 
       _actualites = querySnapshot.docs.map((doc) {
-        return Actualite(
+        return Evenement(
           id: doc.id,
           titre: doc['Titre'],
           description: doc['Description'],
@@ -101,7 +101,7 @@ class ActualiteViewModel extends ChangeNotifier {
       // Mettre à jour localement la liste des actualités
       final index = _actualites.indexWhere((actualite) => actualite.id == id);
       if (index != -1) {
-        _actualites[index] = Actualite(
+        _actualites[index] = Evenement(
           id: id,
           titre: titre,
           description: description,
@@ -117,9 +117,9 @@ class ActualiteViewModel extends ChangeNotifier {
     }
   }
 
-  Future<List<Actualite>> getActualites() async {
+  Future<List<Evenement>> getActualites() async {
     // Create a reference to your collection
-    const List<Actualite> texte = [];
+    const List<Evenement> texte = [];
     try {
       final collectionRef =
           _firestore.collection('Actualite').orderBy('Date', descending: true);
@@ -127,7 +127,7 @@ class ActualiteViewModel extends ChangeNotifier {
 
       // Convert documents to DemandeModelList objects
       final actualite = querySnapshot.docs.map((doc) {
-        return Actualite(
+        return Evenement(
           id: doc.id,
           titre: doc['Titre'],
           description: doc['Description'],

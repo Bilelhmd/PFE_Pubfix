@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pubfix/Screen_citoyen/Actualite/liste_actualite.dart';
+import 'package:pubfix/Screen_citoyen/Evenement/Ajout_even.dart';
+import 'package:pubfix/Screen_citoyen/Evenement/Liste_even.dart';
 import 'package:pubfix/Screen_citoyen/dashboard/dashboard.dart';
 import 'package:pubfix/Screen_citoyen/profile/account_screen.dart';
 import 'package:pubfix/Screen_citoyen/rapport/demande.dart';
@@ -42,7 +44,12 @@ class _HomeState extends State<Home> {
           ),
           CupertinoActionSheetAction(
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const Add_Even(),
+                ),
+              );
             },
             child: const Text(
               'Ajouter un évènement bénévole',
@@ -61,7 +68,7 @@ class _HomeState extends State<Home> {
   final List<Widget> _pages = [
     const Dashboard(),
     const Rapports(),
-    const ListeActualite(),
+    const ListeEvenement(),
     const AccountScreen(),
   ];
 
