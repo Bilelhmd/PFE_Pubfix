@@ -7,6 +7,8 @@ import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:pubfix/Model/Demande/demande_model_list.dart';
 import 'package:pubfix/Screen/home_dashboard.dart';
 import 'package:pubfix/Screen_citoyen/Actualite/liste_actualite_horizontal.dart';
+import 'package:pubfix/Screen_citoyen/Evenement/Liste_even.dart';
+import 'package:pubfix/Screen_citoyen/Evenement/liste_evenement_horizontal.dart';
 import 'package:pubfix/Screen_citoyen/Notification/Notification.dart';
 import 'package:pubfix/Screen_citoyen/rapport/liste_totale_horizontal.dart';
 import 'package:pubfix/ViewModel/demande/rapport_view_model.dart';
@@ -29,7 +31,7 @@ class _DashboardState extends State<Dashboard> {
   final User? currentUser = FirebaseAuth.instance.currentUser;
   final ValueNotifier<bool> _hasNewNotification = ValueNotifier<bool>(false);
   List<DemandeModelList> _demandes = [];
-  // final Set<Marker> _markers = {};
+  Future<Map<String, dynamic>>? _fetchDataFuture;
   void searchAndMarkAddress(String address, String serv, String desc) async {
     try {
       List<Location> locations = await locationFromAddress(address);
@@ -97,6 +99,7 @@ class _DashboardState extends State<Dashboard> {
     _loadUserLocation();
     _listenToNotifications();
     authVM.buildProfileAvatar();
+    _fetchDataFuture = fetchData();
   }
 
   void _onMapCreated(GoogleMapController controller) {
@@ -144,7 +147,6 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Future<Map<String, dynamic>> fetchData() async {
-    // Remplacez 'your_collection' par le nom de votre collection Firestore
     QuerySnapshot querySnapshot =
         await FirebaseFirestore.instance.collection('Demandes').get();
 
@@ -244,7 +246,7 @@ class _DashboardState extends State<Dashboard> {
                         padding: const EdgeInsets.only(
                             left: 8, right: 8, top: 8, bottom: 8),
                         child: FutureBuilder<Map<String, dynamic>>(
-                          future: fetchData(),
+                          future: _fetchDataFuture,
                           builder: (context, snapshot) {
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
@@ -488,7 +490,7 @@ class _DashboardState extends State<Dashboard> {
                         ),
                       ),
                       const SizedBox(
-                        height: 15,
+                        height: 10,
                       ),
                       Padding(
                         padding: const EdgeInsets.only(
@@ -526,6 +528,45 @@ class _DashboardState extends State<Dashboard> {
                               height: 150,
                               color: Colors.transparent,
                               child: const ListeActualiteHorizontal())),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            left: 8, right: 8, top: 0, bottom: 0),
+                        child: Row(
+                          children: [
+                            const Text(
+                              "Evénements Bénévoles",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 18),
+                            ),
+                            const Spacer(),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const ListeEvenement(),
+                                  ),
+                                );
+                              },
+                              child: const Text(
+                                "Voir tout",
+                                style: TextStyle(fontSize: 14),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                          padding: const EdgeInsets.only(
+                              left: 8, right: 8, top: 0, bottom: 0),
+                          child: Container(
+                              height: 150,
+                              color: Colors.transparent,
+                              child: const ListeEvenementHorizontal())),
                       const SizedBox(
                         height: 50,
                       ),

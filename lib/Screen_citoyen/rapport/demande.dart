@@ -384,32 +384,22 @@ class _DemandeReclamationState extends State<DemandeReclamation> {
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 ListTile(
-                  title: const Text('Déchets sortis illégalement'),
+                  title: const Text('Déchets illégalement positionés'),
                   leading: const Icon(
                       IconData(0xf1170, fontFamily: 'MaterialIcons')),
                   onTap: () {
                     setState(() {
-                      _selectedValue = 'Déchets sortis illégalement';
+                      _selectedValue = 'Déchets illégalement positionés';
                     });
                   },
                 ),
                 ListTile(
-                  title: const Text('Déchets éparpillés'),
+                  title: const Text('Déchets éparpillés ou débordante'),
                   leading: const Icon(
                       IconData(0xf1170, fontFamily: 'MaterialIcons')),
                   onTap: () {
                     setState(() {
                       _selectedValue = 'Déchets éparpillés';
-                    });
-                  },
-                ),
-                ListTile(
-                  title: const Text('Poubelle débordante de déchets'),
-                  leading: const Icon(
-                      IconData(0xf1170, fontFamily: 'MaterialIcons')),
-                  onTap: () {
-                    setState(() {
-                      _selectedValue = 'Poubelle débordante de déchets';
                     });
                   },
                 ),
@@ -448,36 +438,52 @@ class _DemandeReclamationState extends State<DemandeReclamation> {
                   },
                 ),
                 const Text(
-                  "Lumières",
+                  "Eclairage",
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 ListTile(
-                  title: const Text('Feu de circulation'),
+                  title: const Text('Coupure électricité'),
                   leading: const Icon(
                       IconData(0xf1170, fontFamily: 'MaterialIcons')),
                   onTap: () {
                     setState(() {
-                      _selectedValue = 'Feu de circulation';
+                      _selectedValue = 'Coupure électricité';
                     });
                   },
                 ),
                 ListTile(
-                  title: const Text('Feu de parc'),
+                  title: const Text(
+                      'Poteaux ou Lampadaires électriques endommagés'),
                   leading: const Icon(
                       IconData(0xf1170, fontFamily: 'MaterialIcons')),
                   onTap: () {
                     setState(() {
-                      _selectedValue = 'Feu de parc';
+                      _selectedValue =
+                          'Poteaux ou Lampadaires électriques endommagés';
+                    });
+                  },
+                ),
+                const Text(
+                  "Distribution d'eaux",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                ListTile(
+                  title: const Text("Fuites d'eau"),
+                  leading: const Icon(
+                      IconData(0xf1170, fontFamily: 'MaterialIcons')),
+                  onTap: () {
+                    setState(() {
+                      _selectedValue = "Fuites d'eau";
                     });
                   },
                 ),
                 ListTile(
-                  title: const Text('Lampadaires'),
+                  title: const Text('Ruptures de canalisations'),
                   leading: const Icon(
                       IconData(0xf1170, fontFamily: 'MaterialIcons')),
                   onTap: () {
                     setState(() {
-                      _selectedValue = 'Lampadaires';
+                      _selectedValue = 'Ruptures de canalisations';
                     });
                   },
                 ),
@@ -496,22 +502,12 @@ class _DemandeReclamationState extends State<DemandeReclamation> {
                   },
                 ),
                 ListTile(
-                  title: const Text('Véhicule abandonné'),
+                  title: const Text('Véhicule/Moto abandonné'),
                   leading: const Icon(
                       IconData(0xf1170, fontFamily: 'MaterialIcons')),
                   onTap: () {
                     setState(() {
-                      _selectedValue = 'Véhicule abandonné';
-                    });
-                  },
-                ),
-                ListTile(
-                  title: const Text('Vélo/Moto abandonné'),
-                  leading: const Icon(
-                      IconData(0xf1170, fontFamily: 'MaterialIcons')),
-                  onTap: () {
-                    setState(() {
-                      _selectedValue = 'Vélo/Moto abandonné';
+                      _selectedValue = 'Véhicule/Moto abandonné';
                     });
                   },
                 ),

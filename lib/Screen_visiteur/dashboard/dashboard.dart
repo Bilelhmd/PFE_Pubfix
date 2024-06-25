@@ -6,6 +6,8 @@ import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:pubfix/Model/Demande/demande_model_list.dart';
 import 'package:pubfix/Screen/home_dashboard.dart';
 import 'package:pubfix/Screen/welcome_screen.dart';
+import 'package:pubfix/Screen_citoyen/Authentication/signup_screen.dart';
+import 'package:pubfix/Screen_citoyen/Evenement/liste_evenement_horizontal.dart';
 import 'package:pubfix/Screen_citoyen/rapport/liste_totale_horizontal.dart';
 import 'package:pubfix/Screen_visiteur/liste_actualite_horizontal.dart';
 import 'package:pubfix/ViewModel/demande/rapport_view_model.dart';
@@ -23,8 +25,7 @@ class _Dashboard_VisiteurState extends State<Dashboard_Visiteur> {
   AnimationController? animationController;
   Animation<double>? animation;
   final double infoHeight = 364.0;
-  ////FONCTION POUR AFFICHER LES CARTES
-  ///  //FIN AFFICHAGE DE LA CARTE
+  Future<Map<String, dynamic>>? _fetchDataFuture;
   bool isFavorite = false;
 
   //final DateFormat formatter = DateFormat('d MMMM yyyy', 'fr'); // French locale
@@ -83,6 +84,7 @@ class _Dashboard_VisiteurState extends State<Dashboard_Visiteur> {
     super.initState();
     _getMarkersFromFirestore();
     _loadUserLocation();
+    _fetchDataFuture = fetchData();
     authVM.buildProfileAvatar();
   }
 
@@ -168,7 +170,7 @@ class _Dashboard_VisiteurState extends State<Dashboard_Visiteur> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const WelcomeScreen(),
+                      builder: (context) => const SignUpScreen(),
                     ),
                   );
                 },
@@ -190,7 +192,7 @@ class _Dashboard_VisiteurState extends State<Dashboard_Visiteur> {
                   padding: const EdgeInsets.only(
                       left: 8, right: 8, top: 8, bottom: 8),
                   child: FutureBuilder<Map<String, dynamic>>(
-                    future: fetchData(),
+                    future: _fetchDataFuture,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(child: CircularProgressIndicator());
@@ -350,13 +352,6 @@ class _Dashboard_VisiteurState extends State<Dashboard_Visiteur> {
                     ],
                   ),
                 ),
-                Padding(
-                    padding: const EdgeInsets.only(
-                        left: 8, right: 8, top: 0, bottom: 0),
-                    child: Container(
-                        height: 180,
-                        color: Colors.transparent,
-                        child: const DetailRapportHorizontal())),
                 Center(
                   child: SizedBox(
                     width: MediaQuery.of(context).size.width * 0.9,
@@ -435,6 +430,37 @@ class _Dashboard_VisiteurState extends State<Dashboard_Visiteur> {
                         height: 150,
                         color: Colors.transparent,
                         child: const ListeActualiteHorizontalVisiteur())),
+                const SizedBox(
+                  height: 10,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(
+                      left: 8, right: 8, top: 0, bottom: 0),
+                  child: Row(
+                    children: [
+                      const Text(
+                        "Evénements Bénévoles",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 18),
+                      ),
+                      const Spacer(),
+                      TextButton(
+                        onPressed: () {},
+                        child: const Text(
+                          "Voir tout",
+                          style: TextStyle(fontSize: 14),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                    padding: const EdgeInsets.only(
+                        left: 8, right: 8, top: 0, bottom: 0),
+                    child: Container(
+                        height: 150,
+                        color: Colors.transparent,
+                        child: const ListeEvenementHorizontal())),
                 const SizedBox(
                   height: 50,
                 ),

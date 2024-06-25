@@ -9,6 +9,7 @@ import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:intl/intl.dart';
 import 'package:pubfix/Screen/home_dashboard.dart';
+import 'package:pubfix/Screen/welcome_screen.dart';
 import 'package:pubfix/global/global_instances.dart';
 import 'package:pubfix/global/global_var.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -35,8 +36,8 @@ class AuthViewModel {
         await saveUserDataToFirestore(currentFirebaseUser, name, email, phone,
             password, "Votre adresse", downloadUrl);
 
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => const Home()));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const WelcomeScreen()));
 
         commonVM.showSnackBar("Compte créé avec succès", context);
       } else {

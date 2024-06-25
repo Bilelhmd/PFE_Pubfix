@@ -28,8 +28,6 @@ class _ListeActualiteState extends State<ListeActualite> {
   final User? currentUser = FirebaseAuth.instance.currentUser;
   final TextEditingController _adresseController = TextEditingController();
 
-  //POUR L'AFFICHAGE DE LA CARTE
-
   GoogleMapController? _mapController;
   final Set<Marker> _markers = {};
 
